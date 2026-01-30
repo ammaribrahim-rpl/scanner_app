@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:scanner_app/auth/login/login.dart';
+import 'package:scanner_app/auth/register/register.dart';
 
 void main() {
   runApp(const MyApp());
@@ -21,6 +22,7 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (context) => const LoginView(),
+        '/register': (context) => const RegisterView(),
       },
     );
   }
