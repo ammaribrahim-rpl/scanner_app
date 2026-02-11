@@ -1,8 +1,8 @@
-import 'dart:nativewrappers/_internal/vm/lib/developer.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:scanner_app/qr_code/models/redeemed_ticket.dart';
 import 'package:scanner_app/qr_code/qr_code_controller.dart';
+
 class QRCodeView extends StatefulWidget {
   const QRCodeView({super.key});
 
@@ -11,37 +11,36 @@ class QRCodeView extends StatefulWidget {
 }
 
 class _QRCodeViewState extends State<QRCodeView> {
-  late final QRCodeController controller = QRCodeController(
-    onSuccess: (code) {
-      log('Scan success: $code');
-      // Logic handled in _onDetect await
-    },
-    onError: (error) {
-      log('Scan error: $error');
-    },
-  );
   bool isScanning = false;
 
-  void _onDetect(BarcodeCapture capture) async {
+  late final QRCodeController controller = QRCodeController();
+
+  /// HANDLE QR DETECT
+  Future<void> _onDetect(BarcodeCapture capture) async {
     if (isScanning) return;
+    if (capture.barcodes.isEmpty) return;
 
     final code = capture.barcodes.first.rawValue;
-    if (code == null) return;
+    if (code == null || code.isEmpty) return;
 
     isScanning = true;
 
+    /// Loading dialog
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (_) => const Center(child: CircularProgressIndicator()),
+      builder: (_) => const Center(
+        child: CircularProgressIndicator(),
+      ),
     );
 
-    final success = await controller.redeemQRCode(code);
+    final bool success = await controller.redeemQRCode(code);
 
     if (!mounted) return;
 
     Navigator.pop(context); // close loading
 
+    /// Result dialog
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
@@ -55,16 +54,29 @@ class _QRCodeViewState extends State<QRCodeView> {
           TextButton(
             onPressed: () {
               Navigator.pop(dialogContext);
-              Navigator.pop(
-                context,
-                RedeemedTicket(name: 'Guest Event', code: code, isRedeemed: true),
-              ); // balik ke home
+              isScanning = false;
+
+              if (success) {
+                Navigator.pop(
+                  context,
+                  RedeemedTicket(
+                    name: 'Guest Event',
+                    code: code,
+                    isRedeemed: true,
+                  ),
+                );
+              }
             },
             child: const Text('OK'),
           ),
         ],
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   @override
@@ -77,21 +89,30 @@ class _QRCodeViewState extends State<QRCodeView> {
         centerTitle: true,
       ),
       body: Stack(
+        alignment: Alignment.center,
         children: [
           /// CAMERA
-          MobileScanner(onDetect: _onDetect),
+          MobileScanner(
+            onDetect: _onDetect,
+            fit: BoxFit.cover,
+          ),
 
           /// DARK OVERLAY
-          Container(color: Colors.black.withValues(alpha: 0.5)),
+          IgnorePointer(
+            child: Container(
+              color: Colors.black.withOpacity(0.5),
+            ),
+          ),
 
           /// SCAN BOX
-          Center(
-            child: Container(
-              width: 260,
-              height: 260,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.greenAccent, width: 3),
+          Container(
+            width: 260,
+            height: 260,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: Colors.greenAccent,
+                width: 3,
               ),
             ),
           ),
@@ -99,18 +120,22 @@ class _QRCodeViewState extends State<QRCodeView> {
           /// TEXT HINT
           Positioned(
             bottom: 80,
-            left: 0,
-            right: 0,
             child: Column(
               children: const [
                 Text(
                   'Arahkan QR ke dalam kotak',
-                  style: TextStyle(color: Colors.white, fontSize: 16),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                  ),
                 ),
                 SizedBox(height: 8),
                 Text(
                   'Scanning otomatis',
-                  style: TextStyle(color: Colors.white54, fontSize: 12),
+                  style: TextStyle(
+                    color: Colors.white54,
+                    fontSize: 12,
+                  ),
                 ),
               ],
             ),

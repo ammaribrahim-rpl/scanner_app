@@ -2,180 +2,164 @@ import 'package:flutter/material.dart';
 import 'home_controller.dart';
 
 class HomeView extends StatelessWidget {
-  final HomeController controller = HomeController();
   final String username;
+  final HomeController controller = HomeController();
 
-  HomeView({super.key, this.username = 'User'});
+  HomeView({
+    super.key,
+    required this.username,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: Colors.deepPurple,
-        title: const Text(
-          'Event Pass',
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
-        ),
-        actions: [
-          IconButton(
-            onPressed: () => controller.goToscanQRCodeView(context),
-            icon: const Icon(Icons.qr_code_scanner, color: Colors.white),
-            tooltip: 'Scan QR Code',
-          ),
-          IconButton(
-            onPressed: () => controller.logout(context),
-            icon: const Icon(Icons.logout, color: Colors.white),
-            tooltip: 'Logout',
-          ),
-        ],
+      appBar: _buildAppBar(context),
+      body: _buildBody(context),
+    );
+  }
+
+  AppBar _buildAppBar(BuildContext context) {
+    return AppBar(
+      backgroundColor: Colors.deepPurple,
+      title: const Text(
+        'Event Pass',
+        style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Colors.deepPurple, Colors.deepPurple.shade300],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.deepPurple.withValues(alpha: 0.3),
-                    blurRadius: 10,
-                    offset: const Offset(0, 5),
-                  ),
-                ],
-              ),
-              child: Row(
-                children: [
-                  CircleAvatar(
-                    radius: 30,
-                    backgroundColor: Colors.white.withValues(alpha: 0.2),
-                    child: const Icon(Icons.person, size: 40, color: Colors.white),
-                  ),
-                  const SizedBox(width: 16),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Welcome back,',
-                        style: TextStyle(color: Colors.white70, fontSize: 16),
-                      ),
-                      Text(
-                        username,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 32),
-            const Text(
-              'Dashboard',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black87),
-            ),
-            const SizedBox(height: 16),
-            GridView.count(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              crossAxisCount: 2,
-              crossAxisSpacing: 16,
-              mainAxisSpacing: 16,
-              children: [
-                _buildDashboardCard(
-                  icon: Icons.qr_code,
-                  title: 'Scan Ticket',
-                  color: Colors.blue,
-                  onTap: () => controller.goToscanQRCodeView(context),
-                ),
-                _buildDashboardCard(
-                  icon: Icons.history,
-                  title: 'History',
-                  color: Colors.orange,
-                  onTap: () {
-                    // TODO: Implement history view
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('History feature coming soon!')),
-                    );
-                  },
-                ),
-                _buildDashboardCard(
-                  icon: Icons.event,
-                  title: 'Events',
-                  color: Colors.purple,
-                  onTap: () {
-                     // TODO: Implement events view
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Events feature coming soon!')),
-                    );
-                  },
-                ),
-                 _buildDashboardCard(
-                  icon: Icons.settings,
-                  title: 'Settings',
-                  color: Colors.grey,
-                  onTap: () {
-                     // TODO: Implement settings view
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Settings feature coming soon!')),
-                    );
-                  },
-                ),
-              ],
-            ),
-          ],
+      actions: [
+        IconButton(
+          onPressed: () => controller.goToScanQR(context),
+          icon: const Icon(Icons.qr_code_scanner),
         ),
+        IconButton(
+          onPressed: () => controller.logout(context),
+          icon: const Icon(Icons.logout),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBody(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildHeader(),
+          const SizedBox(height: 32),
+          const Text(
+            'Dashboard',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 16),
+          _buildDashboard(context),
+        ],
       ),
     );
   }
 
-  Widget _buildDashboardCard({
+  Widget _buildHeader() {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Colors.deepPurple, Colors.deepPurple.shade300],
+        ),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        children: [
+          const CircleAvatar(
+            radius: 30,
+            child: Icon(Icons.person, size: 40),
+          ),
+          const SizedBox(width: 16),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('Welcome back,', style: TextStyle(color: Colors.white70)),
+              Text(
+                username,
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDashboard(BuildContext context) {
+    return GridView(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: 16,
+        mainAxisSpacing: 16,
+      ),
+      children: [
+        _dashboardCard(
+          icon: Icons.qr_code,
+          title: 'Scan Ticket',
+          color: Colors.blue,
+          onTap: () => controller.goToScanQR(context),
+        ),
+        _dashboardCard(
+          icon: Icons.history,
+          title: 'History',
+          color: Colors.orange,
+          onTap: () => _showComingSoon(context),
+        ),
+        _dashboardCard(
+          icon: Icons.event,
+          title: 'Events',
+          color: Colors.purple,
+          onTap: () => _showComingSoon(context),
+        ),
+        _dashboardCard(
+          icon: Icons.settings,
+          title: 'Settings',
+          color: Colors.grey,
+          onTap: () => _showComingSoon(context),
+        ),
+      ],
+    );
+  }
+
+  Widget _dashboardCard({
     required IconData icon,
     required String title,
     required Color color,
     required VoidCallback onTap,
   }) {
     return Card(
-      elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(16),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              CircleAvatar(
-                radius: 24,
-                backgroundColor: color.withValues(alpha: 0.1),
-                child: Icon(icon, color: color, size: 28),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
-              ),
-            ],
-          ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircleAvatar(
+              backgroundColor: color.withOpacity(0.1),
+              child: Icon(icon, color: color),
+            ),
+            const SizedBox(height: 12),
+            Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+          ],
         ),
       ),
+    );
+  }
+
+  void _showComingSoon(BuildContext context) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Feature coming soon')),
     );
   }
 }
