@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:scanner_app/home/home_view.dart';
 
@@ -9,8 +11,8 @@ class LoginController {
 
   // Dummy Data
   final Map<String, String> _dummyUsers = {
-    'admin': 'password123',
-    'user': 'user123',
+    'username': 'user123',
+    'password': 'password123',
   };
 
   void login(BuildContext context) async {
@@ -25,13 +27,22 @@ class LoginController {
     final username = usernameController.text.trim();
     final password = passwordController.text.trim();
 
-    if (_dummyUsers.containsKey(username) && _dummyUsers[username] == password) {
-       // Navigate to HomeView
-       Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => HomeView(username: username)),
-      );
+    final bool isUserNameValid = username == _dummyUsers['username'];
+    final bool isPasswordValid = password == _dummyUsers['password'];
+
+    if (isUserNameValid && isPasswordValid) {
+      // Navigate to HomeView
+      if (context.mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => HomeView(username: username)),
+        );
+      }
     } else {
+      log('Login failed for user: $username');
+      log('Expected password: ${_dummyUsers["password"]}');
+      log('Provided password: $password');
+      log('--- End of debug info ---');
       errorMessage.value = 'Invalid username or password';
     }
   }
@@ -69,7 +80,9 @@ class _LoginViewState extends State<LoginView> {
           padding: const EdgeInsets.all(24.0),
           child: Card(
             elevation: 8,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
             child: Padding(
               padding: const EdgeInsets.all(32.0),
               child: Column(
@@ -92,9 +105,7 @@ class _LoginViewState extends State<LoginView> {
                   const SizedBox(height: 8),
                   const Text(
                     'Login to continue',
-                    style: TextStyle(
-                      color: Colors.grey,
-                    ),
+                    style: TextStyle(color: Colors.grey),
                   ),
                   const SizedBox(height: 32),
                   TextField(
@@ -144,7 +155,9 @@ class _LoginViewState extends State<LoginView> {
                         width: double.infinity,
                         height: 48,
                         child: ElevatedButton(
-                          onPressed: loading ? null : () => _controller.login(context),
+                          onPressed: loading
+                              ? null
+                              : () => _controller.login(context),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.deepPurple,
                             foregroundColor: Colors.white,
@@ -163,7 +176,10 @@ class _LoginViewState extends State<LoginView> {
                                 )
                               : const Text(
                                   'Login',
-                                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                         ),
                       );
@@ -176,7 +192,10 @@ class _LoginViewState extends State<LoginView> {
                     },
                     child: const Text(
                       "Don't have an account? Register Now",
-                      style: TextStyle(color: Colors.deepPurple, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        color: Colors.deepPurple,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ],

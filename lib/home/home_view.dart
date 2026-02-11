@@ -47,7 +47,7 @@ class HomeView extends StatelessWidget {
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.deepPurple.withOpacity(0.3),
+                    color: Colors.deepPurple.withValues(alpha: 0.3),
                     blurRadius: 10,
                     offset: const Offset(0, 5),
                   ),
@@ -57,7 +57,7 @@ class HomeView extends StatelessWidget {
                 children: [
                   CircleAvatar(
                     radius: 30,
-                    backgroundColor: Colors.white.withOpacity(0.2),
+                    backgroundColor: Colors.white.withValues(alpha: 0.2),
                     child: const Icon(Icons.person, size: 40, color: Colors.white),
                   ),
                   const SizedBox(width: 16),
@@ -160,7 +160,7 @@ class HomeView extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: 24,
-                backgroundColor: color.withOpacity(0.1),
+                backgroundColor: color.withValues(alpha: 0.1),
                 child: Icon(icon, color: color, size: 28),
               ),
               const SizedBox(height: 12),
